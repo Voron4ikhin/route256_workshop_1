@@ -1,49 +1,52 @@
 package http
 
 import (
-	"flag"
+	"fmt"
+	"log"
 	"net/http"
-	"os"
-	"route256/loms/internal/pkg/handlers"
-	"route256/loms/internal/pkg/repository"
-	"route256/loms/internal/pkg/services"
+	"route256/loms/internal/pkg/config"
+	"route256/loms/internal/pkg/repository/inmemory"
 )
 
-type config struct {
-	addr string
+type dependencies struct {
+	ordersStorage *inmemory.OrdersStorage
+	stocksStorage *inmemory.StocksStorage
 }
 
-// envOrDefault returns the value of the env var if set, otherwise def.
-// Flags below use this as their default, so the precedence is: flag > env > hardcoded default.
-func envOrDefault(key, def string) string {
-	if v, ok := os.LookupEnv(key); ok && v != "" {
-		return v
+func newDependencies(cfg config.Config) (dependencies, error) {
+	ordersStorage, err := inmemory.NewOrdersStorage()
+	if err != nil {
+		return dependencies{}, fmt.Errorf("init orders storage: %w", err)
 	}
-	return def
-}
 
-func newConfigFromFlags() config {
-	defaultAddr := envOrDefault("ADDR", ":8080")
+	stocksStorage, err := inmemory.NewStocksStorage()
+	if err != nil {
+		return dependencies{}, fmt.Errorf("init stocks storage: %w", err)
+	}
 
-	result := config{}
-	flag.StringVar(&result.addr, "addr", defaultAddr, "server address, default: "+defaultAddr)
-	flag.Parse()
-	return result
+	return dependencies{
+		ordersStorage: ordersStorage,
+		stocksStorage: stocksStorage,
+	}, nil
 }
 
 type App struct {
-	config config
+	config config.Config
 }
 
-func NewApp() *App {
+func NewApp(cfg config.Config) *App {
 	return &App{
-		config: newConfigFromFlags(),
+		config: cfg,
 	}
 }
 
 func (a App) Run() error {
-	stocksHandler := handlers.NewStocksHandler(services.NewStocksService(repository.NewDumbRepo()))
-	http.HandleFunc("/stock/info", stocksHandler.Handle)
+	deps, err := newDependencies(a.config)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	return http.ListenAndServe(a.config.addr, nil)
+	mux := newRouter(deps)
+
+	return http.ListenAndServe(a.config.Addr, mux)
 }

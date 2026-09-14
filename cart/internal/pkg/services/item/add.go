@@ -27,6 +27,7 @@ type AddService struct {
 	cartAdder       CartAdder
 }
 
+// TODO: посмотреть надо ли отсюда ошибки вынести выше
 var ErrInsufficientStocks = errors.New("insufficient stocks")
 var ErrAddItemToCart = errors.New("add item to cart")
 

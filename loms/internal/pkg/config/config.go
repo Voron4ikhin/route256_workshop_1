@@ -8,8 +8,6 @@ import (
 
 type Config struct {
 	Addr        string
-	LomsAddr    string
-	ProductAddr string
 	ProductMock bool
 }
 
@@ -31,16 +29,12 @@ func envOrDefaultBool(key string, def bool) bool {
 
 func NewFromFlags() Config {
 	var (
-		defaultAddr        = envOrDefault("CART_ADDR_LOC", ":8080")
-		defaultLomsAddr    = envOrDefault("LOMS_ADDR", "http://loms:8080")
-		defaultProductAddr = envOrDefault("PRODUCT_ADDR", "http://route256.pavl.uk:8080") // это не работает
-		defaultProductMock = envOrDefaultBool("PRODUCT_MOCK", true)                       // TODO: вернуть false, когда product-сервис снова станет доступен
+		defaultAddr        = envOrDefault("LOMS_ADD_LOC", ":8080")
+		defaultProductMock = envOrDefaultBool("PRODUCT_MOCK", true) // TODO: вернуть false, когда product-сервис снова станет доступен
 	)
 
 	result := Config{}
 	flag.StringVar(&result.Addr, "addr", defaultAddr, "server address, default: "+defaultAddr)
-	flag.StringVar(&result.LomsAddr, "loms_addr", defaultLomsAddr, "loms server address, default: "+defaultLomsAddr)
-	flag.StringVar(&result.ProductAddr, "product_addr", defaultProductAddr, "product server address, default: "+defaultProductAddr)
 	flag.BoolVar(&result.ProductMock, "product_mock", defaultProductMock, "use in-memory mock instead of the real product client")
 	flag.Parse()
 	return result

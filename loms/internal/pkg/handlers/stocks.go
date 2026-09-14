@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
 	"log"
 	"net/http"
 )
@@ -24,8 +23,6 @@ func NewStocksHandler(stocksService StocksService) *StocksHandler {
 type StockRequest struct {
 	SKU uint32 `json:"sku"`
 }
-
-var ErrIncorrectSKU = errors.New("incorrect SKU")
 
 func (r StockRequest) Validate() error {
 	if r.SKU == 0 {

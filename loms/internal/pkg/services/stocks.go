@@ -1,7 +1,7 @@
 package services
 
 type StocksProvider interface {
-	GetStocks(sku uint32) uint64
+	GetBySKU(sku uint32) uint64
 }
 
 type StockService struct {
@@ -15,5 +15,5 @@ func NewStocksService(stocksProvider StocksProvider) *StockService {
 }
 
 func (s *StockService) GetStocks(sku uint32) uint64 {
-	return s.stocksProvider.GetStocks(sku)
+	return s.stocksProvider.GetBySKU(sku)
 }

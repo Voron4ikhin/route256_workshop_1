@@ -29,6 +29,7 @@ type GetProductErrorResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
+// TODO: сделать универсальнее
 func New(name string, basePath string) (*Client, error) {
 	const handlerName = "get_product"
 	path, err := url.JoinPath(basePath, handlerName)

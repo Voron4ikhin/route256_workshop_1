@@ -1,0 +1,75 @@
+package orders
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"route256/loms/internal/pkg/handlers/orders"
+)
+
+type OrderCreator interface {
+	Create(ctx context.Context, user int64, items []orders.OrderItem) (uint64, error)
+}
+
+type OrderStatusSetter interface {
+	SetStatus(ctx context.Context, orderID uint64, status OrderStatus) error
+}
+
+type StockReserver interface {
+	Reserve(ctx context.Context, item []orders.OrderItem) error
+}
+
+type OrderStatus string
+
+func (s OrderStatus) IsValid() bool {
+	switch s {
+	case StatusNew, StatusAwaitingPayment, StatusFailed:
+		return true
+	default:
+		return false
+	}
+}
+
+const (
+	StatusNew             OrderStatus = "new"
+	StatusAwaitingPayment OrderStatus = "awaiting_payment"
+	StatusFailed          OrderStatus = "failed"
+)
+
+type OrderCreateService struct {
+	name              string
+	orderCreator      OrderCreator
+	orderStatusSetter OrderStatusSetter
+	stockReserver     StockReserver
+}
+
+var ErrCreateOrder = errors.New("cannot create order in OrderStorage")
+var ErrReserveOrder = errors.New("cannot reserve items in StockStorage")
+var ErrStatusSetter = errors.New("cannot set status in OrderStorage")
+
+func NewOrderCreateService(orderCreator OrderCreator, orderStatusSetter OrderStatusSetter, stockReserver StockReserver) *OrderCreateService {
+	return &OrderCreateService{
+		name:              "OrderCreateService",
+		orderCreator:      orderCreator,
+		orderStatusSetter: orderStatusSetter,
+		stockReserver:     stockReserver,
+	}
+}
+
+func (s *OrderCreateService) CreateOrder(ctx context.Context, user int64, items []orders.OrderItem) (uint64, error) {
+	orderID, err := s.orderCreator.Create(ctx, user, items)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %s", s.name, ErrCreateOrder)
+	}
+	if err = s.stockReserver.Reserve(ctx, items); err != nil {
+		if err = s.orderStatusSetter.SetStatus(ctx, orderID, StatusFailed); err != nil {
+			return 0, fmt.Errorf("%s: %s", s.name, ErrStatusSetter)
+		}
+		return 0, fmt.Errorf("%s: %s", s.name, ErrReserveOrder)
+	}
+	if err = s.orderStatusSetter.SetStatus(ctx, orderID, StatusAwaitingPayment); err != nil {
+		return 0, fmt.Errorf("%s: %s", s.name, ErrStatusSetter)
+	}
+
+	return orderID, nil
+}

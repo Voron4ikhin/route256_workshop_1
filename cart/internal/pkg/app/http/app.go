@@ -12,7 +12,6 @@ import (
 	"route256/cart/internal/pkg/repository/inmemory"
 )
 
-// productProvider is satisfied by both product.Client and its mock stand-in.
 type productProvider interface {
 	GetProductInfo(ctx context.Context, sku uint32) (string, uint32, error)
 }
