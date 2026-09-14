@@ -34,7 +34,7 @@ type OrderCreateResponse struct {
 }
 
 func New(name string, basePath string) (*Client, error) {
-	stockInfoPath, err := url.JoinPath(basePath, "stocks/info")
+	stockInfoPath, err := url.JoinPath(basePath, "stock/info")
 	if err != nil {
 		return nil, fmt.Errorf("%s: incorrect base path: %w", name, err)
 	}

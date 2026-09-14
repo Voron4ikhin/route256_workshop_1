@@ -43,7 +43,7 @@ func NewApp() *App {
 
 func (a App) Run() error {
 	stocksHandler := handlers.NewStocksHandler(services.NewStocksService(repository.NewDumbRepo()))
-	http.HandleFunc("/stocks", stocksHandler.Handle)
+	http.HandleFunc("/stock/info", stocksHandler.Handle)
 
 	return http.ListenAndServe(a.config.addr, nil)
 }
