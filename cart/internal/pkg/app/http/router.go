@@ -16,11 +16,11 @@ func newRouter(deps dependencies) *http.ServeMux {
 	checkoutHandler := handlers.NewCheckoutHandler(services.NewCheckoutService(deps.cartRepository, deps.lomsClient))
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/item/add", itemAddHandler.Handle)
-	mux.HandleFunc("/item/delete", itemDeleteHandler.Handle)
-	mux.HandleFunc("/list", listHandler.Handle)
-	mux.HandleFunc("/clear", clearHandler.Handle)
-	mux.HandleFunc("/checkout", checkoutHandler.Handle)
+	mux.HandleFunc("/cart/item/add", itemAddHandler.Handle)
+	mux.HandleFunc("/cart/item/delete", itemDeleteHandler.Handle)
+	mux.HandleFunc("/cart/list", listHandler.Handle)
+	mux.HandleFunc("/cart/clear", clearHandler.Handle)
+	mux.HandleFunc("/cart/checkout", checkoutHandler.Handle)
 
 	return mux
 }
