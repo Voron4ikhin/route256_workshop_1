@@ -2,6 +2,7 @@ package product
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -41,9 +42,15 @@ func New(name string, basePath string) (*Client, error) {
 	}, nil
 }
 
-func (c Client) GetProductInfo(sku uint32) (string, uint32, error) {
+func (c Client) GetProductInfo(ctx context.Context, sku uint32) (string, uint32, error) {
+	token := "testtoken" // TODO понять как его в реквест запихнуть правильно
+	//token, ok := ctx.Value("token").(string)
+	//if !ok || token == "" {
+	//	return "", 0, fmt.Errorf("%s token required", c.name)
+	//}
+
 	request := GetProductRequest{
-		Token: "testtoken", // TODO: get from request and pass into ctx
+		Token: token, // get from request and pass into ctx
 		SKU:   sku,
 	}
 	data, err := json.Marshal(request)

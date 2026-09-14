@@ -3,6 +3,8 @@ services:
   cart:
     image: cart
     build: ./cart/
+    env_file:
+      - .env
     ports:
       - "8082:8080"
     depends_on:
@@ -10,6 +12,8 @@ services:
   loms:
     image: loms
     build: ./loms/
+    env_file:
+      - .env
     ports:
       - "8083:8080"
   # notification:

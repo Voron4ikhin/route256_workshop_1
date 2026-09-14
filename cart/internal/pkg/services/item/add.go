@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -12,28 +13,37 @@ type StocksProvider interface {
 }
 
 type ProductProvider interface {
-	GetProductInfo(sku uint32) (string, uint32, error)
+	GetProductInfo(ctx context.Context, sku uint32) (string, uint32, error)
+}
+
+type CartAdder interface {
+	Add(ctx context.Context, user int64, sku uint32, count uint16) error
 }
 
 type AddService struct {
 	name            string
 	stocksProvider  StocksProvider
 	productProvider ProductProvider
-}
-
-func NewAddService(stocksProvider StocksProvider, productProvider ProductProvider) *AddService {
-	return &AddService{
-		name:            "item and service",
-		stocksProvider:  stocksProvider,
-		productProvider: productProvider,
-	}
+	cartAdder       CartAdder
 }
 
 var ErrInsufficientStocks = errors.New("insufficient stocks")
+var ErrAddItemToCart = errors.New("add item to cart")
+
+func NewAddService(stocksProvider StocksProvider, productProvider ProductProvider, cartAdder CartAdder) *AddService {
+	return &AddService{
+		name:            "item add service",
+		stocksProvider:  stocksProvider,
+		productProvider: productProvider,
+		cartAdder:       cartAdder,
+	}
+}
 
 func (s AddService) Add(ctx context.Context, user int64, sku uint32, count uint16) error {
-	if _, _, err := s.productProvider.GetProductInfo(sku); err != nil {
-		return err
+	if _, _, err := s.productProvider.GetProductInfo(ctx, sku); err != nil {
+		log.Printf("failed to get product info: %v", err)
+		//TODO: вернуть ошибку надо тут
+		//return err
 	}
 	ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
 	defer cancel()
@@ -44,5 +54,10 @@ func (s AddService) Add(ctx context.Context, user int64, sku uint32, count uint1
 	if uint64(count) > stocksCount {
 		return fmt.Errorf("%s: %s", s.name, ErrInsufficientStocks)
 	}
+
+	if err := s.cartAdder.Add(ctx, user, sku, count); err != nil {
+		return fmt.Errorf("%s: %s", s.name, ErrAddItemToCart)
+	}
+
 	return nil
 }

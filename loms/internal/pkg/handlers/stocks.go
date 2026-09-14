@@ -39,7 +39,6 @@ type StockResponse struct {
 }
 
 func (s StocksHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	//time.Sleep(time.Second) // TODO: увидеть таймаут по контексту
 	req := &StockRequest{}
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		log.Println("stocks: failed to decode request body")

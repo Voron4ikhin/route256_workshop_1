@@ -3,24 +3,19 @@ package item
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"route256/cart/internal/pkg/handlers"
 )
 
-var ErrIncorrectUser = errors.New("incorrect user")
-var ErrIncorrectSKU = errors.New("incorrect SKU")
-var ErrIncorrectQuantity = errors.New("incorrect item quantity")
-
 func (r AddRequest) Validate() error {
 	if r.User <= 0 {
-		return ErrIncorrectUser
+		return handlers.ErrIncorrectUser
 	}
 	if r.SKU == 0 {
-		return ErrIncorrectSKU
+		return handlers.ErrIncorrectSKU
 	}
 	if r.Count == 0 {
-		return ErrIncorrectQuantity
+		return handlers.ErrIncorrectQuantity
 	}
 	return nil
 }
