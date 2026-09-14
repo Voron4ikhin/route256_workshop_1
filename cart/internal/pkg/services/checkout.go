@@ -28,11 +28,11 @@ func NewCheckoutService(cartCheckouter CartCheckouter, lomsCheckouter LomsChecko
 }
 
 func (s CheckoutService) Checkout(ctx context.Context, user int64) (int64, error) {
-	list, err := s.cartCheckouter.GetList(ctx, user)
+	itemList, err := s.cartCheckouter.GetList(ctx, user)
 	if err != nil {
 		return 0, err
 	}
-	order, err := s.lomsCheckouter.Checkout(ctx, user, list)
+	order, err := s.lomsCheckouter.Checkout(ctx, user, itemList)
 	if err != nil {
 		return 0, err
 	}
