@@ -7,7 +7,7 @@ import (
 )
 
 type CheckoutRequest struct {
-	User int64
+	User int64 `json:"user,omitempty"`
 }
 
 func (cr CheckoutRequest) Validate() error {

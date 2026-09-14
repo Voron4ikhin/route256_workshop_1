@@ -6,11 +6,11 @@ import (
 )
 
 type CartCheckouter interface {
-	GetList(ctx context.Context, user int64) ([]handlers.FullCartItem, error)
+	GetList(ctx context.Context, user int64) ([]handlers.CartItem, error)
 }
 
 type LomsCheckouter interface {
-	Checkout(ctx context.Context, user int64, items []handlers.FullCartItem) (int64, error)
+	Checkout(ctx context.Context, user int64, items []handlers.CartItem) (int64, error)
 }
 
 type CheckoutService struct {

@@ -42,11 +42,11 @@ func NewAddService(stocksProvider StocksProvider, productProvider ProductProvide
 func (s AddService) Add(ctx context.Context, user int64, sku uint32, count uint16) error {
 	if _, _, err := s.productProvider.GetProductInfo(ctx, sku); err != nil {
 		log.Printf("failed to get product info: %v", err)
-		//TODO: вернуть ошибку надо тут
-		//return err
+		return err
 	}
 	ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
 	defer cancel()
+
 	stocksCount, err := s.stocksProvider.GetStocks(ctx, sku)
 	if err != nil {
 		return err

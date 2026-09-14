@@ -7,7 +7,7 @@ import (
 )
 
 type ClearRequest struct {
-	User int64
+	User int64 `json:"user,omitempty"`
 }
 
 func (cl ClearRequest) Validate() error {

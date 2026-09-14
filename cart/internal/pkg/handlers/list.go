@@ -6,12 +6,16 @@ import (
 	"net/http"
 )
 
-// TODO добавить еще один меньший CartItem
 type FullCartItem struct {
 	SKU   uint32
 	Count uint16
 	Name  string
 	Price uint32
+}
+
+type CartItem struct {
+	SKU   uint32
+	Count uint16
 }
 
 type ListRequest struct {

@@ -69,6 +69,6 @@ func (c Client) GetStocks(ctx context.Context, sku uint32) (uint64, error) {
 	return response.Count, nil
 }
 
-func (c Client) Checkout(ctx context.Context, user int64, items []handlers.FullCartItem) (int64, error) {
+func (c Client) Checkout(ctx context.Context, user int64, items []handlers.CartItem) (int64, error) {
 	return 12, nil
 }

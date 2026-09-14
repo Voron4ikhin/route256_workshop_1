@@ -48,17 +48,16 @@ func (r *InMemoryRepo) Delete(ctx context.Context, user int64, sku uint32) error
 	return nil
 }
 
-func (r *InMemoryRepo) GetList(ctx context.Context, user int64) ([]handlers.FullCartItem, error) {
+func (r *InMemoryRepo) GetList(ctx context.Context, user int64) ([]handlers.CartItem, error) {
 	log.Println("InMemoryRepo.GetList")
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	items := r.storage[user]
-	result := make([]handlers.FullCartItem, 0, len(items))
+	result := make([]handlers.CartItem, 0, len(items))
 	for sku, count := range items {
-		result = append(result, handlers.FullCartItem{SKU: sku, Count: count})
+		result = append(result, handlers.CartItem{SKU: sku, Count: count})
 	}
 	return result, nil
-
 }
 
 func (r *InMemoryRepo) Clear(ctx context.Context, user int64) error {
