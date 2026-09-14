@@ -14,7 +14,7 @@ type OrderItem struct {
 }
 
 type Order struct {
-	ID     uint64
+	ID     int64
 	UserID int64
 	Items  []OrderItem
 	Status sorders.OrderStatus
@@ -22,18 +22,18 @@ type Order struct {
 
 type OrdersStorage struct {
 	mu     sync.RWMutex
-	orders map[uint64]*Order
-	nextID uint64
+	orders map[int64]*Order
+	nextID int64
 }
 
 func NewOrdersStorage() (*OrdersStorage, error) {
 	return &OrdersStorage{
-		orders: make(map[uint64]*Order),
+		orders: make(map[int64]*Order),
 		nextID: 1,
 	}, nil
 }
 
-func (s *OrdersStorage) Create(ctx context.Context, user int64, items []horders.OrderItem) (uint64, error) {
+func (s *OrdersStorage) Create(ctx context.Context, user int64, items []horders.OrderItem) (int64, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -60,7 +60,7 @@ func (s *OrdersStorage) Create(ctx context.Context, user int64, items []horders.
 	return orderID, nil
 }
 
-func (s *OrdersStorage) SetStatus(ctx context.Context, orderID uint64, status sorders.OrderStatus) error {
+func (s *OrdersStorage) SetStatus(ctx context.Context, orderID int64, status sorders.OrderStatus) error {
 	if !status.IsValid() {
 		return fmt.Errorf("not valid status: %s", status)
 	}
@@ -76,4 +76,27 @@ func (s *OrdersStorage) SetStatus(ctx context.Context, orderID uint64, status so
 	order.Status = status
 
 	return nil
+}
+
+func (s *OrdersStorage) GetByID(ctx context.Context, orderID int64) (*sorders.Order, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	res := &sorders.Order{}
+	order, ok := s.orders[orderID]
+	if !ok {
+		return res, fmt.Errorf("order %d not found", orderID)
+	}
+
+	res.UserID = order.UserID
+	res.Status = order.Status
+	res.Items = make([]horders.OrderItem, len(order.Items))
+	for i, item := range order.Items {
+		res.Items[i] = horders.OrderItem{
+			SKU:   item.SKU,
+			Count: item.Count,
+		}
+	}
+
+	return res, nil
 }

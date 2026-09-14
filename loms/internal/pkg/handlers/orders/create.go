@@ -40,7 +40,7 @@ type OrderCreateResponse struct {
 }
 
 type OrderCreator interface {
-	CreateOrder(ctx context.Context, user int64, items []OrderItem) (uint64, error)
+	CreateOrder(ctx context.Context, user int64, items []OrderItem) (*OrderCreateResponse, error)
 }
 
 type OrderCreateHandler struct {
@@ -66,13 +66,13 @@ func (h *OrderCreateHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := h.orderCreator.CreateOrder(r.Context(), req.User, req.Items)
+	orderID, err := h.orderCreator.CreateOrder(r.Context(), req.User, req.Items)
 	if err != nil {
 		handlers.GetErrorResponse(w, h.name, err, http.StatusPreconditionFailed)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(order); err != nil {
+	if err := json.NewEncoder(w).Encode(orderID); err != nil {
 		handlers.GetErrorResponse(w, h.name, err, http.StatusInternalServerError)
 		return
 	}

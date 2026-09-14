@@ -8,11 +8,11 @@ import (
 )
 
 type OrderCreator interface {
-	Create(ctx context.Context, user int64, items []orders.OrderItem) (uint64, error)
+	Create(ctx context.Context, user int64, items []orders.OrderItem) (int64, error)
 }
 
 type OrderStatusSetter interface {
-	SetStatus(ctx context.Context, orderID uint64, status OrderStatus) error
+	SetStatus(ctx context.Context, orderID int64, status OrderStatus) error
 }
 
 type StockReserver interface {
@@ -56,20 +56,22 @@ func NewOrderCreateService(orderCreator OrderCreator, orderStatusSetter OrderSta
 	}
 }
 
-func (s *OrderCreateService) CreateOrder(ctx context.Context, user int64, items []orders.OrderItem) (uint64, error) {
+func (s *OrderCreateService) CreateOrder(ctx context.Context, user int64, items []orders.OrderItem) (*orders.OrderCreateResponse, error) {
+	resp := &orders.OrderCreateResponse{}
 	orderID, err := s.orderCreator.Create(ctx, user, items)
 	if err != nil {
-		return 0, fmt.Errorf("%s: %s", s.name, ErrCreateOrder)
+		return resp, fmt.Errorf("%s: %s", s.name, ErrCreateOrder)
 	}
 	if err = s.stockReserver.Reserve(ctx, items); err != nil {
 		if err = s.orderStatusSetter.SetStatus(ctx, orderID, StatusFailed); err != nil {
-			return 0, fmt.Errorf("%s: %s", s.name, ErrStatusSetter)
+			return resp, fmt.Errorf("%s: %s", s.name, ErrStatusSetter)
 		}
-		return 0, fmt.Errorf("%s: %s", s.name, ErrReserveOrder)
+		return resp, fmt.Errorf("%s: %s", s.name, ErrReserveOrder)
 	}
 	if err = s.orderStatusSetter.SetStatus(ctx, orderID, StatusAwaitingPayment); err != nil {
-		return 0, fmt.Errorf("%s: %s", s.name, ErrStatusSetter)
+		return resp, fmt.Errorf("%s: %s", s.name, ErrStatusSetter)
 	}
 
-	return orderID, nil
+	resp.OrderId = orderID
+	return resp, nil
 }
