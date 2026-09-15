@@ -23,7 +23,7 @@ type OrderStatus string
 
 func (s OrderStatus) IsValid() bool {
 	switch s {
-	case StatusNew, StatusAwaitingPayment, StatusFailed:
+	case StatusNew, StatusAwaitingPayment, StatusFailed, StatusCancelled, StatusPayed:
 		return true
 	default:
 		return false
@@ -34,6 +34,8 @@ const (
 	StatusNew             OrderStatus = "new"
 	StatusAwaitingPayment OrderStatus = "awaiting_payment"
 	StatusFailed          OrderStatus = "failed"
+	StatusCancelled       OrderStatus = "cancelled"
+	StatusPayed           OrderStatus = "payed"
 )
 
 type OrderCreateService struct {
@@ -44,8 +46,11 @@ type OrderCreateService struct {
 }
 
 var ErrCreateOrder = errors.New("cannot create order in OrderStorage")
+var ErrPayOrder = errors.New("cannot pay order in OrderStorage")
 var ErrReserveOrder = errors.New("cannot reserve items in StockStorage")
+var ErrReserveRemoveOrder = errors.New("cannot remove reserved items in StockStorage")
 var ErrStatusSetter = errors.New("cannot set status in OrderStorage")
+var ErrStatusToPay = errors.New("cannot set status to pay because status is not ready for pay")
 
 func NewOrderCreateService(orderCreator OrderCreator, orderStatusSetter OrderStatusSetter, stockReserver StockReserver) *OrderCreateService {
 	return &OrderCreateService{
