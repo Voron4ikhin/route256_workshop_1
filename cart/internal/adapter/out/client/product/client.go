@@ -46,9 +46,6 @@ func New(name string, basePath string) (*Client, error) {
 	}, nil
 }
 
-// GetProductInfo authenticates with the token carried on ctx, which the
-// Auth middleware populates from the incoming request's Authorization
-// header (see internal/authctx and internal/adapter/in/http/middleware).
 func (c *Client) GetProductInfo(ctx context.Context, sku uint32) (string, uint32, error) {
 	request := getProductRequest{
 		Token: authctx.Token(ctx),
