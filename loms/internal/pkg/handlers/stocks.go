@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
 )
 
 type StocksService interface {
-	GetStocks(sku uint32) uint64
+	GetStocks(ctx context.Context, sku uint32) uint64
 }
 
 type StocksHandler struct {
@@ -48,7 +49,7 @@ func (s StocksHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	count := s.stocksService.GetStocks(req.SKU)
+	count := s.stocksService.GetStocks(r.Context(), req.SKU)
 
 	stockResponse := &StockResponse{
 		Count: count,

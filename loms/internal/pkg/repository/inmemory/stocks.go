@@ -26,7 +26,7 @@ func NewStocksStorage() (*StocksStorage, error) {
 	return &StocksStorage{stocks: stocks}, nil
 }
 
-func (s *StocksStorage) GetBySKU(sku uint32) uint64 {
+func (s *StocksStorage) GetBySKU(ctx context.Context, sku uint32) uint64 {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 

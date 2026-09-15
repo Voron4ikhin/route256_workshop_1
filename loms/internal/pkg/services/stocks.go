@@ -1,7 +1,9 @@
 package services
 
+import "context"
+
 type StocksProvider interface {
-	GetBySKU(sku uint32) uint64
+	GetBySKU(ctx context.Context, sku uint32) uint64
 }
 
 type StockService struct {
@@ -14,6 +16,6 @@ func NewStocksService(stocksProvider StocksProvider) *StockService {
 	}
 }
 
-func (s *StockService) GetStocks(sku uint32) uint64 {
-	return s.stocksProvider.GetBySKU(sku)
+func (s *StockService) GetStocks(ctx context.Context, sku uint32) uint64 {
+	return s.stocksProvider.GetBySKU(ctx, sku)
 }
