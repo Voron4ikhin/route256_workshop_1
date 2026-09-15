@@ -3,7 +3,6 @@ package orders
 import (
 	"context"
 	"fmt"
-	"log"
 	"route256/loms/internal/pkg/handlers/orders"
 )
 
@@ -30,7 +29,7 @@ func NewOrderPayService(orderInformant OrderInformant, stockReserveRemover Stock
 func (s *OrderPayService) PayOrder(ctx context.Context, orderID int64) error {
 	order, err := s.orderInformant.GetByID(ctx, orderID)
 	if err != nil {
-		return fmt.Errorf("%s: %s", s.name, ErrPayOrder)
+		return fmt.Errorf("%s: %s", s.name, ErrOrderNotFound)
 	}
 	if order.Status != StatusAwaitingPayment {
 		return fmt.Errorf("%s: %s", s.name, ErrStatusToPay)
@@ -41,7 +40,6 @@ func (s *OrderPayService) PayOrder(ctx context.Context, orderID int64) error {
 	}
 
 	if err = s.orderStatusSetter.SetStatus(ctx, orderID, StatusPayed); err != nil {
-		log.Println(err)
 		return fmt.Errorf("%s: %s", s.name, ErrStatusSetter)
 	}
 

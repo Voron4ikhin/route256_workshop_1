@@ -81,5 +81,15 @@ func (s *StocksStorage) ReserveRemove(ctx context.Context, items []orders.OrderI
 }
 
 func (s *StocksStorage) ReserveCancel(ctx context.Context, items []orders.OrderItem) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for _, v := range items {
+		if _, ok := s.stocks[v.SKU]; !ok {
+			return fmt.Errorf("stock not found item with %d", v.SKU)
+		}
+		s.stocks[v.SKU].reserved -= uint64(v.Count)
+	}
+
 	return nil
 }

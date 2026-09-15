@@ -46,11 +46,12 @@ type OrderCreateService struct {
 }
 
 var ErrCreateOrder = errors.New("cannot create order in OrderStorage")
-var ErrPayOrder = errors.New("cannot pay order in OrderStorage")
+var ErrOrderNotFound = errors.New("cannot find order in OrderStorage")
 var ErrReserveOrder = errors.New("cannot reserve items in StockStorage")
 var ErrReserveRemoveOrder = errors.New("cannot remove reserved items in StockStorage")
 var ErrStatusSetter = errors.New("cannot set status in OrderStorage")
 var ErrStatusToPay = errors.New("cannot set status to pay because status is not ready for pay")
+var ErrReserveCancelOrder = errors.New("cannot cancel reserve order")
 
 func NewOrderCreateService(orderCreator OrderCreator, orderStatusSetter OrderStatusSetter, stockReserver StockReserver) *OrderCreateService {
 	return &OrderCreateService{
