@@ -37,7 +37,7 @@ type orderCreateRequest struct {
 }
 
 type orderCreateResponse struct {
-	OrderID int64 `json:"order_id,omitempty"`
+	OrderID int64 `json:"orderID,omitempty"`
 }
 
 func New(name string, basePath string) (*Client, error) {

@@ -50,11 +50,11 @@ func (r CreateRequest) Validate() error {
 }
 
 type CreateResponse struct {
-	OrderID int64 `json:"order_id,omitempty"`
+	OrderID int64 `json:"orderID,omitempty"`
 }
 
 type InfoRequest struct {
-	OrderID int64 `json:"order_id,omitempty"`
+	OrderID int64 `json:"orderID,omitempty"`
 }
 
 func (r InfoRequest) Validate() error {
@@ -79,7 +79,7 @@ func infoResponseFromDomain(o *domain.Order) InfoResponse {
 }
 
 type PayRequest struct {
-	OrderID int64 `json:"order_id,omitempty"`
+	OrderID int64 `json:"orderID,omitempty"`
 }
 
 func (r PayRequest) Validate() error {
@@ -90,7 +90,7 @@ func (r PayRequest) Validate() error {
 }
 
 type CancelRequest struct {
-	OrderID int64 `json:"order_id,omitempty"`
+	OrderID int64 `json:"orderID,omitempty"`
 }
 
 func (r CancelRequest) Validate() error {
