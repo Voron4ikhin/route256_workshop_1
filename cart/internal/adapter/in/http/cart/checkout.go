@@ -34,5 +34,5 @@ func (h *CheckoutHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpkit.WriteJSON(w, h.name, http.StatusOK, orderID)
+	httpkit.WriteJSON(w, h.name, http.StatusOK, CheckoutResponse{OrderID: orderID})
 }

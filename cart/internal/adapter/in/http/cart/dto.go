@@ -57,3 +57,7 @@ func (r CheckoutRequest) Validate() error {
 	}
 	return nil
 }
+
+type CheckoutResponse struct {
+	OrderID int64 `json:"orderID,omitempty"`
+}
