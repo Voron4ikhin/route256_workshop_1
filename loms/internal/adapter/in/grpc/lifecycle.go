@@ -12,12 +12,12 @@ import (
 
 type GRPCServer struct {
 	grpcServer *grpc.Server
-	listener   net.Listener // TODO: нахуя
+	listener   net.Listener
 	logger     *slog.Logger
 }
 
 func NewGRPCServer(addr string, deps Dependencies, logger *slog.Logger) (*GRPCServer, error) {
-	lis, err := net.Listen("tcp", addr) // TODO: какой addr
+	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
