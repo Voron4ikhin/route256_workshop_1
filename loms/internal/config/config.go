@@ -6,7 +6,8 @@ import (
 )
 
 type Config struct {
-	Addr string
+	Addr     string
+	GRPCAddr string
 }
 
 func envOrDefault(key, def string) string {
@@ -18,9 +19,11 @@ func envOrDefault(key, def string) string {
 
 func NewFromFlags() Config {
 	defaultAddr := envOrDefault("LOMS_ADD_LOC", ":8080")
+	defaultGRPCAddr := envOrDefault("LOMS_GRPC_ADDR_LOC", ":50051")
 
 	result := Config{}
 	flag.StringVar(&result.Addr, "addr", defaultAddr, "server address, default: "+defaultAddr)
+	flag.StringVar(&result.GRPCAddr, "grpc-addr", defaultGRPCAddr, "gRPC server address, default: "+defaultGRPCAddr)
 	flag.Parse()
 	return result
 }

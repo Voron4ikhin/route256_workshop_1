@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	grpcadapter "route256/loms/internal/adapter/in/grpc"
 	httpadapter "route256/loms/internal/adapter/in/http"
 	"route256/loms/internal/adapter/in/scheduler"
 	"route256/loms/internal/adapter/out/repository/inmemory"
@@ -38,7 +39,7 @@ func run() error {
 	cancelService := order.NewCancelService(orderRepo, stockRepo)
 	autoCancelService := order.NewAutoCancelService(orderRepo, cancelService, unpaidOrderTTL)
 
-	deps := httpadapter.Dependencies{
+	httpDeps := httpadapter.Dependencies{
 		OrderCreator:   order.NewCreateService(orderRepo, stockRepo),
 		OrderPayer:     order.NewPayService(orderRepo, stockRepo),
 		OrderCanceler:  cancelService,
@@ -46,7 +47,20 @@ func run() error {
 		StockInformant: stock.NewQueryService(stockRepo),
 	}
 
-	server := httpadapter.NewServer(cfg.Addr, deps, logger)
+	grpcDeps := grpcadapter.Dependencies{
+		OrderCreator:   order.NewCreateService(orderRepo, stockRepo),
+		OrderPayer:     order.NewPayService(orderRepo, stockRepo),
+		OrderCanceler:  cancelService,
+		OrderInformant: order.NewInfoService(orderRepo),
+		StockInformant: stock.NewQueryService(stockRepo),
+	}
+
+	httpServer := httpadapter.NewServer(cfg.Addr, httpDeps, logger)
+	grpcServer, err := grpcadapter.NewGRPCServer(cfg.GRPCAddr, grpcDeps, logger)
+	if err != nil {
+		return err
+	}
+
 	autoCancelScheduler := scheduler.NewAutoCancelScheduler(autoCancelService, autoCancelInterval, logger)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -54,5 +68,12 @@ func run() error {
 
 	go autoCancelScheduler.Run(ctx)
 
-	return server.Run(ctx, shutdownTimeout)
+	errCh := make(chan error, 2)
+	go func() { errCh <- httpServer.Run(ctx, shutdownTimeout) }()
+	go func() { errCh <- grpcServer.Run(ctx, shutdownTimeout) }()
+
+	if err := <-errCh; err != nil {
+		return err
+	}
+	return <-errCh
 }

@@ -16,6 +16,7 @@ services:
       - .env
     ports:
       - "8083:8080"
+      - "50051:50051"
   # notification:
   #   image: notification
   #   build: ./notification
