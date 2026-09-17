@@ -39,20 +39,25 @@ func run() error {
 	cancelService := order.NewCancelService(orderRepo, stockRepo)
 	autoCancelService := order.NewAutoCancelService(orderRepo, cancelService, unpaidOrderTTL)
 
+	createService := order.NewCreateService(orderRepo, stockRepo)
+	payService := order.NewPayService(orderRepo, stockRepo)
+	infoService := order.NewInfoService(orderRepo)
+	queryService := stock.NewQueryService(stockRepo)
+
 	httpDeps := httpadapter.Dependencies{
-		OrderCreator:   order.NewCreateService(orderRepo, stockRepo),
-		OrderPayer:     order.NewPayService(orderRepo, stockRepo),
+		OrderCreator:   createService,
+		OrderPayer:     payService,
 		OrderCanceler:  cancelService,
-		OrderInformant: order.NewInfoService(orderRepo),
+		OrderInformant: infoService,
 		StockInformant: stock.NewQueryService(stockRepo),
 	}
 
 	grpcDeps := grpcadapter.Dependencies{
-		OrderCreator:   order.NewCreateService(orderRepo, stockRepo),
-		OrderPayer:     order.NewPayService(orderRepo, stockRepo),
+		OrderCreator:   createService,
+		OrderPayer:     payService,
 		OrderCanceler:  cancelService,
-		OrderInformant: order.NewInfoService(orderRepo),
-		StockInformant: stock.NewQueryService(stockRepo),
+		OrderInformant: infoService,
+		StockInformant: queryService,
 	}
 
 	httpServer := httpadapter.NewServer(cfg.Addr, httpDeps, logger)

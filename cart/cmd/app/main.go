@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/signal"
 	httpadapter "route256/cart/internal/adapter/in/http"
-	"route256/cart/internal/adapter/out/client/loms"
+	lomsgrpc "route256/cart/internal/adapter/out/client/loms/grpc"
 	"route256/cart/internal/adapter/out/client/product"
 	productmock "route256/cart/internal/adapter/out/client/product/mock"
 	"route256/cart/internal/adapter/out/repository/inmemory"
@@ -32,10 +32,17 @@ func run() error {
 	cfg := config.NewFromFlags()
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	lomsClient, err := loms.New("loms client", cfg.LomsAddr)
+	// Старый через http
+	//lomsClient, err := loms.New("loms client", cfg.LomsAddr)
+	lomsClient, err := lomsgrpc.New("loms client", cfg.LomsGRPCAddr)
 	if err != nil {
 		return fmt.Errorf("init loms client: %w", err)
 	}
+	defer func() {
+		if err := lomsClient.Close(); err != nil {
+			logger.Error("close loms client", "error", err)
+		}
+	}()
 
 	var productClient out.ProductClient
 	if cfg.ProductMock {

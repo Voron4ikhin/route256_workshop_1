@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"log/slog"
 	"net"
 	"time"
@@ -19,7 +19,7 @@ type GRPCServer struct {
 func NewGRPCServer(addr string, deps Dependencies, logger *slog.Logger) (*GRPCServer, error) {
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		return nil, fmt.Errorf("grpc listen: %w", err)
 	}
 
 	srv := grpc.NewServer()
