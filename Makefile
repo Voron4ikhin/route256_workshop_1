@@ -1,3 +1,7 @@
+# generate regenerates Go code from proto/ (shared gRPC contracts between cart and loms).
+generate:
+	cd loms && make generate
+
 build-all:
 	cd cart && GOOS=linux GOARCH=amd64 make build
 	cd loms && GOOS=linux GOARCH=amd64 make build
